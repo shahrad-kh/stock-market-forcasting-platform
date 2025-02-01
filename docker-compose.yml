@@ -28,6 +28,26 @@ services:
     networks:
       - mynetwork
 
+  redis:
+    image: redis
+    container_name: redis
+    networks:
+      - mynetwork
+
+  celery:
+    build: .
+    container_name: celery_worker
+    command: celery -A your_project worker --loglevel=info
+    networks:
+      - mynetwork
+
+  celery-beat:
+    build: .
+    container_name: celery_beat
+    command: celery -A your_project beat --loglevel=info
+    networks:
+      - mynetwork
+
 
 networks:
   mynetwork:

@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+from celery.schedules import crontab
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -41,6 +42,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'drf_yasg',
+    'django_celery_beat',
     
     'account',
     'history',
@@ -161,4 +163,20 @@ SIMPLE_JWT = {
 
 # Static files
 STATIC_ROOT = "/app/static"
+
+
+# Redis is used as the message broker
+CELERY_BROKER_URL = "redis://redis:6379/0"
+
+# Celery timezone
+CELERY_TIMEZONE = "UTC"
+
+# Define periodic tasks in settings.py
+CELERY_BEAT_SCHEDULE = {
+    'run_my_task_every_midnight': {
+        'task': 'app_name.tasks.task_name',  # Import path of the task
+        'schedule': crontab(hour=0, minute=0),  # Runs every day at 00:00 (midnight)
+    },
+}
+
 
