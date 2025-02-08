@@ -16,7 +16,7 @@ class HistorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = History
-        fields = ['id', 'instrument', 'instrument_id', 'date', 'open', 'high', 'low', 'close']
+        fields = ['id', 'instrument', 'instrument_id', 'date', 'open', 'high', 'low', 'close', 'volume']
 
 
 class RecentUpdateSerializer(serializers.ModelSerializer):
