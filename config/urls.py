@@ -23,9 +23,9 @@ from drf_yasg import openapi
 
 schema_view = get_schema_view(
     openapi.Info(
-        title="Your API Documentation",
+        title="APIs Documentation",
         default_version='v1',
-        description="Detailed API documentation for your Django app",
+        description="Detailed API documentation for Django app",
         terms_of_service="https://www.google.com/policies/terms/",
         contact=openapi.Contact(email="your_email@example.com"),
         license=openapi.License(name="BSD License"),
@@ -33,6 +33,7 @@ schema_view = get_schema_view(
     public=True,
     permission_classes=(permissions.AllowAny,),
 )
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
