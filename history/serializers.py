@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Instrument, History, RecentUpdate
+from .models import Instrument, History
 
 
 class InstrumentSerializer(serializers.ModelSerializer):
@@ -9,17 +9,19 @@ class InstrumentSerializer(serializers.ModelSerializer):
 
 
 class HistorySerializer(serializers.ModelSerializer):
-    instrument = InstrumentSerializer(read_only=True)
-    instrument_id = serializers.PrimaryKeyRelatedField(
-        queryset=Instrument.objects.all(), source='instrument', write_only=True
-    )
-
     class Meta:
         model = History
-        fields = ['id', 'instrument', 'instrument_id', 'date', 'open', 'high', 'low', 'close']
+        fields = ['id', 'instrument_id', 'date', 'open', 'high', 'low', 'volume', 'close']
 
 
-class RecentUpdateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = RecentUpdate
-        fields = ['id', 'recent_update_date_time']
+class InstrumentSummarySerializer(serializers.Serializer):
+    InstrumentId = serializers.IntegerField()
+    InstrumentName = serializers.CharField()
+    HistoryId = serializers.IntegerField()
+    Date = serializers.DateField(format="%Y-%m-%d") 
+    Close = serializers.IntegerField()
+    Open = serializers.IntegerField()
+    High = serializers.IntegerField()
+    Low = serializers.IntegerField()
+    Volume = serializers.IntegerField()
+    Change = serializers.FloatField()

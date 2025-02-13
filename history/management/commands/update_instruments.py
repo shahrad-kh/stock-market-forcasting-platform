@@ -1,13 +1,16 @@
 from django.core.management.base import BaseCommand
 from history.services import InstrumentRepository
+import logging
 
 class Command(BaseCommand):
     help = "Refresh instruments"
 
     def handle(self, *args, **kwargs):
-        self.stdout.write("Starting Instruments update...")
+        start_message = "Starting Instruments update..."
+        ens_message = "Instruments update completed."
+        logging.info(start_message)
 
         # Refresh instruments
         InstrumentRepository.refresh_instruments()
 
-        self.stdout.write("Instruments update completed.")
+        logging.info(ens_message)

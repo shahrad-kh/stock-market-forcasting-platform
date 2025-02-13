@@ -1,6 +1,9 @@
+import logging
 from celery.schedules import crontab
-from celery.task import periodic_task
+from celery import shared_task
+from history.services import StockMarketService
 
-@periodic_task(run_every=crontab(hour=0, minute=0))
+@shared_task
 def scheduled_fetch_and_store_recent_trade_history():
-    fetch_and_store_recent_trade_history.delay()
+    logging.info("scheduled_fetch_and_store_recent_trade_history task have been executed.")
+    StockMarketService.fetch_and_store_recent_trade_history()    

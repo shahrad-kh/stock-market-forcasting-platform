@@ -22,19 +22,6 @@ class History(models.Model):
 
     class Meta:
         app_label = 'history'
-        indexes = [
-            models.Index(fields=['instrument_id']),
-        ]
 
     def __str__(self):
         return f"Ins:{self.instrument} - date:{self.date} - open:{self.open} - high:{self.high} - low:{self.low} - close:{self.close} - volume:{self.volume}"
-    
-    
-class RecentUpdate(models.Model):
-    recent_update_date_time = models.DateTimeField(null=False, blank=False)
-
-    class Meta:
-        app_label = 'history'
-    
-    def __str__(self):
-        return f"recent_update_date_time:{self.recent_update_date_time}"

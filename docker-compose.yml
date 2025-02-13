@@ -1,7 +1,5 @@
-version: '3.8'
-
 services:
-  web:
+  django_app:
     build:
       context: .
     container_name: django_app
@@ -13,6 +11,50 @@ services:
       - 8000
     networks:
       - mynetwork
+    depends_on:
+      - redis
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+  
+  redis:
+    image: redis
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - mynetwork
+
+  celery_worker:
+    build: .
+    container_name: celery_worker
+    command: celery -A config worker --loglevel=info
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    networks:
+      - mynetwork
+    restart: always
+
+  celery-beat:
+    build: .
+    container_name: celery_beat
+    command: celery -A config beat --loglevel=info
+    volumes:
+      - .:/app    
+    depends_on:
+      - redis
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    networks:
+      - mynetwork
+    restart: always
 
   nginx:
     image: nginx:latest
@@ -22,32 +64,11 @@ services:
       - ./static:/app/static
       - ./media:/app/media
     ports:
-      - "80:80"
+      - "8000:80"
     depends_on:
-      - web
+      - django_app
     networks:
       - mynetwork
-
-  redis:
-    image: redis
-    container_name: redis
-    networks:
-      - mynetwork
-
-  celery:
-    build: .
-    container_name: celery_worker
-    command: celery -A your_project worker --loglevel=info
-    networks:
-      - mynetwork
-
-  celery-beat:
-    build: .
-    container_name: celery_beat
-    command: celery -A your_project beat --loglevel=info
-    networks:
-      - mynetwork
-
 
 networks:
   mynetwork:
