@@ -33,9 +33,6 @@ RUN curl -sSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor 
 # Verify installation of ODBC driver
 RUN odbcinst -q -d
 
-# Copy the Supervisor config file
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-
 # Copy the requirements file and install dependencies
 COPY requirements.linux.txt /app/
 RUN pip install --upgrade pip setuptools wheel && \
