@@ -3,11 +3,12 @@ import pandas as pd
 import pytse_client as tse
 from pytse_client import symbols_data, Ticker
 from history.models import Instrument, History
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.core.paginator import Paginator
 from django.db import connection
 from decimal import Decimal, ROUND_HALF_UP
 import time
+from forcast import services as forcast_services
 
 
 # Configure logging
@@ -226,6 +227,22 @@ class StockMarketService:
                             break
                         
                         logging.info(f"{len(recent_trade_data)} new trade data found for {symbol_name} instrument.")
+
+                        last_fetched_trade_date = recent_trade_data['date'].max()
+                        
+                        # Convert to datetime.date if it's not already
+                        if isinstance(last_fetched_trade_date, str):
+                            last_fetched_trade_date = datetime.strptime(last_fetched_trade_date, "%Y-%m-%d").date()
+                        elif isinstance(last_fetched_trade_date, datetime):
+                            last_fetched_trade_date = last_fetched_trade_date.date()
+
+                        logging.info(f"Last fetched trade date for {symbol_name}: {last_fetched_trade_date}")
+                        
+                        # Add one day
+                        last_fetched_trade_date += timedelta(days=1)
+                        
+                        forcast_services.predictionRepository.remove_prediction_less_than(last_fetched_trade_date)
+
                         HistoryRepository.save_trade_history_in_bulk(fetched_instrument, recent_trade_data)
                         break  # Success, exit retry loop
                     
