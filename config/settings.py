@@ -68,6 +68,11 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:8000",
 ]
 
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^https://.*$",  # Allow any subdomain of https
+]
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
