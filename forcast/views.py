@@ -3,19 +3,34 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from .models import Prediction
 from .serializers import PredictionSerializer
-from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
+import logging
 
+from history.models import Instrument
 
 class PredictionCreateView(APIView):
     @swagger_auto_schema(
         request_body=PredictionSerializer,
         responses={201: PredictionSerializer, 400: "Bad Request"})
     def post(self, request):
-        serializer = PredictionSerializer(data=request.data)
+        serializer = PredictionSerializer(data=request.data, many=True)
+
         if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            predictions = [
+                Prediction(
+                    instrument=Instrument.objects.get(id=item['instrument'].id),
+                    date=item['date'],
+                    open=item['open'],
+                    high=item['high'],
+                    low=item['low'],
+                    close=item['close'],
+                    volume=item['volume']
+                )
+                for item in serializer.validated_data
+            ]
+            Prediction.objects.bulk_create(predictions)  # Bulk insert
+            logging.info(f"{len(predictions)} prediction data inserted to database.")
+            return Response({"message": "Predictions added successfully!"}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
