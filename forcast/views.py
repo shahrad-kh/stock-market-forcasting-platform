@@ -40,6 +40,7 @@ from rest_framework import status
 from datetime import datetime, timedelta
 from .models import Prediction
 from .serializers import PredictionSerializer
+from history.models import History
 
 class PredictionByInstrumentView(APIView):
     def get(self, request, instrument_id, days):
@@ -54,11 +55,12 @@ class PredictionByInstrumentView(APIView):
                 return Response({"error": "instrument_is must be non-negative"}, status=status.HTTP_400_BAD_REQUEST)
 
             # Get today's date and calculate the range
-            today = datetime.today().date()
-            end_date = today + timedelta(days=days)
+            latest_date = History.objects.filter(instrument_id=instrument_id).latest('date').date
+            start_prediction = latest_date + timedelta(days=1)
+            end_date = latest_date + timedelta(days=days)
 
             # Fetch predictions within the date range
-            predictions = Prediction.objects.filter(instrument_id=instrument_id, date__range=[today, end_date])
+            predictions = Prediction.objects.filter(instrument_id=instrument_id, date__range=[start_prediction, end_date])
             
             # Serialize the data
             serializer = PredictionSerializer(predictions, many=True)
